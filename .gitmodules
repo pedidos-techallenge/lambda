@@ -1,0 +1,3 @@
+[submodule "external-dependencies/pedidos"]
+	path = external-dependencies/pedidos
+	url = git@github.com:felipefrsilva/pedidos.git
