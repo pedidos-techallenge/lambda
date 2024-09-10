@@ -1,0 +1,35 @@
+name: Deploy Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Zip Lambda function
+      run: |
+        cd ./
+        zip -r lambda.zip *
+
+    - name: Upload to S3
+      run: |
+        aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
+
+    - name: Apply Terraform
+      run: |
+        terraform init
+        terraform apply -auto-approve
