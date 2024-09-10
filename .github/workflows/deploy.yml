@@ -20,8 +20,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
-          working-directory: terraform
-          run: terraform init
+      working-directory: terraform
+      run: terraform init
     
     - name: Terraform Plan
       env:
