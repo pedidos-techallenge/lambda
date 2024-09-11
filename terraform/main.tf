@@ -10,6 +10,10 @@ resource "aws_lambda_function" "hello_world" {
   runtime       = "nodejs18.x"
   role          = aws_iam_role.lambda_exec.arn
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   environment {
     variables = {
       ENV_VAR = "value"
