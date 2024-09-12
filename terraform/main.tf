@@ -44,7 +44,7 @@ resource "aws_iam_role" "lambda_exec" {
 
 resource "aws_iam_role_policy_attachment" "lambda_policy_attach" {
   role       = aws_iam_role.lambda_exec.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  policy_arn = "aws_iam_policy.s3_put_policy.arn"
 }
 
 resource "aws_security_group" "lambda_sg" {
