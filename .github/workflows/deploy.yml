@@ -36,6 +36,9 @@ jobs:
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       working-directory: lambda
       run: zip -r lambda.zip *
+    
+    - name: Verificar se o arquivo existe
+      run: test -f lambda.zip && echo "Arquivo encontrado" || echo "Arquivo não encontrado"
 
     - name: Upload to S3
       env:
