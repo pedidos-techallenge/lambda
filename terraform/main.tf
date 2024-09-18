@@ -2,6 +2,10 @@ provider "aws" {
   region = "us-east-1"
 }
 
+terraform {
+  backend "s3" {}
+}
+
 resource "aws_lambda_function" "hello_world" {
   function_name = "hello_world"
   handler       = "index.handler"
