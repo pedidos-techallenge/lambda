@@ -42,7 +42,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip -backend-config="bucket=bucket-tfstates-postech-fiap-6soat" -backend-config="key=mysql.tfstate" -backend-config="region=us-east-1"
+      run: -backend-config="bucket=bucket-tfstates-postech-fiap-6soat" -backend-config="key=mysql.tfstate" -backend-config="region=us-east-1" aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
 
     - name: Apply Terraform
       run: |
