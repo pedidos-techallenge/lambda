@@ -35,7 +35,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       working-directory: lambda
-      run: zip -r lambda/lambda.zip *
+      run: zip -r lambda.zip *
 
     - name: Upload to S3
       env:
