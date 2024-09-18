@@ -3,16 +3,15 @@ provider "aws" {
 }
 
 resource "aws_lambda_function" "hello_world" {
-  function_name = "hello_world_lambda"
-  s3_bucket     = "bucket-tfstates-postech-fiap-6soat"
-  s3_key        = "lambda.zip"
-  handler       = "index.js"
+  function_name = "hello_world"
+  handler       = "index.handler"
   runtime       = "nodejs18.x"
-  role          = aws_iam_role.lambda_exec.arn
+  role          = "arn:aws:iam::195169078299:role/LabRole"
+  filename = "../lambda.zip"
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 
   environment {
     variables = {
@@ -23,28 +22,6 @@ resource "aws_lambda_function" "hello_world" {
   tags = {
     Name = "hello-world-lambda"
   }
-}
-
-resource "aws_iam_role" "lambda_exec" {
-  name = "lambda_exec_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_policy_attach" {
-  role       = aws_iam_role.lambda_exec.name
-  policy_arn = aws_iam_policy.S3PutObjectPolicy.arn
 }
 
 resource "aws_security_group" "lambda_sg" {
@@ -69,4 +46,39 @@ resource "aws_security_group" "lambda_sg" {
   tags = {
     Name = "lambda-security-group"
   }
+}
+
+data "aws_api_gateway_rest_api" "api" {
+  name = "HelloWorldAPI"
+}
+
+resource "aws_api_gateway_resource" "hello_resource" {
+  rest_api_id = data.aws_api_gateway_rest_api.api.id
+  parent_id   = data.aws_api_gateway_rest_api.api.root_resource_id
+  path_part        = "hello"
+}
+
+resource "aws_api_gateway_method" "get_method" {
+  rest_api_id   = data.aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.hello_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+# API Gateway Integration with Lambda
+resource "aws_api_gateway_integration" "lambda_integration" {
+  rest_api_id             = data.aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.hello_resource.id
+  http_method             = aws_api_gateway_method.get_method.http_method
+  integration_http_method = "GET"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.hello_world.invoke_arn
+  credentials             = "arn:aws:iam::195169078299:role/LabRole"
+}
+
+# Deploy API Gateway
+resource "aws_api_gateway_deployment" "api_deployment" {
+  depends_on = [aws_api_gateway_integration.lambda_integration]
+  rest_api_id = data.aws_api_gateway_rest_api.api.id
+  stage_name  = "prod"
 }
