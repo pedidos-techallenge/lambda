@@ -19,7 +19,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       working-directory: terraform
-      run: run: terraform init -backend-config="bucket=bucket-tfstates-postech-fiap-6soat" -backend-config="key=mysql.tfstate" -backend-config="region=us-east-1"
+      run: terraform init -backend-config="bucket=bucket-tfstates-postech-fiap-6soat" -backend-config="key=mysql.tfstate" -backend-config="region=us-east-1"
     
     - name: Terraform Plan
       env:
