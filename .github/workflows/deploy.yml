@@ -40,11 +40,12 @@ jobs:
     - name: Verificar se o arquivo existe
       run: test -f lambda.zip && echo "Arquivo encontrado" || echo "Arquivo não encontrado"
 
-    - name: Verificar credenciais de autenticação
+    - name: Configurar credenciais de autenticação
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      run: aws configure get aws_access_key_id --debug
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      run: aws configure
 
     - name: Upload to S3
       env:
