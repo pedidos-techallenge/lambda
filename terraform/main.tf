@@ -29,7 +29,7 @@ resource "aws_lambda_function" "hello_world" {
 }
 
 # Data source to check if the security group already exists
-data "aws_security_group" "lambda_sg" {
+data "aws_security_group" "existing_sg" {
   filter {
     name   = "group-name"
     values = ["lambda_sg"]
@@ -41,8 +41,9 @@ data "aws_security_group" "lambda_sg" {
   }
 }
 
+# Create the security group only if it doesn't exist
 resource "aws_security_group" "lambda_sg" {
-  count = length(data.aws_security_group.lambda_sg.id) == 0 ? 1 : 0
+  count = length(data.aws_security_group.existing_sg.ids) == 0 ? 1 : 0
 
   name        = "lambda_sg"
   description = "Security Group for Lambda function"
