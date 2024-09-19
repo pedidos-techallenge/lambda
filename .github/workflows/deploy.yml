@@ -8,27 +8,32 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Setar credenciais da AWS
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      run: echo "Credenciais da AWS setadas"
-
     - name: Checkout code
       uses: actions/checkout@v2
 
     - name: Setup AWS CLI
+      env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       working-directory: terraform
       run: terraform init -backend-config="bucket=bucket-tfstates-postech-fiap-6soat" -backend-config="key=mysql.tfstate" -backend-config="region=us-east-1"
     
     - name: Terraform Plan
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       working-directory: terraform
       run: terraform plan -out=tfplan
 
     - name: Zip Lambda function
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       working-directory: lambda
       run: zip -r lambda.zip *
     
@@ -36,62 +41,20 @@ jobs:
       run: test -f lambda.zip && echo "Arquivo encontrado" || echo "Arquivo não encontrado"
 
     - name: Configurar credenciais de autenticação
-      run: aws configure
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      run: aws configure --debug
 
     - name: Upload to S3
-      run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip --debug
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
 
     - name: Apply Terraform
       run: |
         terraform init
         terraform apply -input=false tfplan -auto-approve
-    
-    # steps:
-    # - name: Checkout code
-    #   uses: actions/checkout@v2
-
-    # - name: Setup AWS CLI
-    #   env:
-    #       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-    #   working-directory: terraform
-    #   run: terraform init -backend-config="bucket=bucket-tfstates-postech-fiap-6soat" -backend-config="key=mysql.tfstate" -backend-config="region=us-east-1"
-    
-    # - name: Terraform Plan
-    #   env:
-    #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-    #   working-directory: terraform
-    #   run: terraform plan -out=tfplan
-
-    # - name: Zip Lambda function
-    #   env:
-    #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-    #   working-directory: lambda
-    #   run: zip -r lambda.zip *
-    
-    # - name: Verificar se o arquivo existe
-    #   run: test -f lambda.zip && echo "Arquivo encontrado" || echo "Arquivo não encontrado"
-
-    # - name: Configurar credenciais de autenticação
-    #   env:
-    #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-    #   run: aws configure
-
-    # - name: Upload to S3
-    #   env:
-    #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-    #   run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip --debug
-
-    # - name: Apply Terraform
-    #   run: |
-    #     terraform init
-    #     terraform apply -input=false tfplan -auto-approve
