@@ -30,6 +30,7 @@ jobs:
       run: terraform plan -out=tfplan
     
     - name: Apply Terraform
+      working-directory: terraform
       run: terraform apply -input=false -auto-approve tfplan
     
   aws_cli_:
