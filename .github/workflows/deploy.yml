@@ -28,6 +28,18 @@ jobs:
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       working-directory: terraform
       run: terraform plan -out=tfplan
+  
+   - name: Apply Terraform
+     run: |
+      terraform init
+      terraform apply -input=false tfplan -auto-approve
+
+  aws_cli_:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
     - name: Zip Lambda function
       env:
@@ -41,22 +53,17 @@ jobs:
       run: test -f lambda.zip && echo "Arquivo encontrado" || echo "Arquivo não encontrado"
     
     - name: Configure AWS Credentials
-      env:
+      with:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
         aws-region: us-east-1
-      run: aws configure
+      args: configure
     
     - name: Upload to S3
-      env:
+      with:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
         aws-region: us-east-1
-      run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
-    
-  #  - name: Apply Terraform
-  #    run: |
-  #     terraform init
-  #     terraform apply -input=false tfplan -auto-approve
+      args: s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
