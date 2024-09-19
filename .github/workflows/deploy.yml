@@ -30,9 +30,9 @@ jobs:
       run: terraform plan -out=tfplan
   
    - name: Apply Terraform
-     run: |
-      terraform init
-      terraform apply -input=false tfplan -auto-approve
+      run: |
+        terraform init
+        terraform apply -auto-approve
 
   aws_cli_:
     runs-on: ubuntu-latest
