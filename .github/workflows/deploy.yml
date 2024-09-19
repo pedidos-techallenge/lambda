@@ -31,7 +31,7 @@ jobs:
     
     - name: Apply Terraform
       run: |
-        terraform init
+        terraform init -backend-config="bucket=bucket-tfstates-postech-fiap-6soat" -backend-config="key=mysql.tfstate" -backend-config="region=us-east-1"
         terraform apply -input=false tfplan -auto-approve
     
   aws_cli_:
