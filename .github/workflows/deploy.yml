@@ -40,18 +40,6 @@ jobs:
     - name: Verificar se o arquivo existe
       run: test -f lambda.zip && echo "Arquivo encontrado" || echo "Arquivo não encontrado"
     
-    - name: Apply Terraform
-      run: |
-        terraform init
-        terraform apply -input=false tfplan -auto-approve
-    
-  aws_cli_:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-    
     - name: Configure AWS Credentials
       uses: actions/checkout@v2
       with:
@@ -69,6 +57,11 @@ jobs:
       uses: actions/checkout@v2
       with:
         args: s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
+    
+   - name: Apply Terraform
+     run: |
+      terraform init
+      terraform apply -input=false tfplan -auto-approve
 
     # - name: Configurar credenciais de autenticação
     #   env:
