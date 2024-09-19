@@ -28,6 +28,19 @@ resource "aws_lambda_function" "hello_world" {
   }
 }
 
+# Data source to check if the security group already exists
+data "aws_security_group" "lambda_sg" {
+  filter {
+    name   = "group-name"
+    values = ["lambda_sg"]
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = ["vpc-0e0d609eb36e1e778"]
+  }
+}
+
 resource "aws_security_group" "lambda_sg" {
   count = length(data.aws_security_group.lambda_sg.ids) == 0 ? 1 : 0
 
