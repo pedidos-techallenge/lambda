@@ -28,17 +28,17 @@ jobs:
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       working-directory: terraform
       run: terraform plan -out=tfplan
-  
-   - name: Apply Terraform
+    
+    - name: Apply Terraform
       run: |
         terraform init
-        terraform apply -auto-approve
-
+        terraform apply -input=false tfplan -auto-approve
+    
   aws_cli_:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Checkout code
+    - name: Checkout Repository
       uses: actions/checkout@v2
 
     - name: Zip Lambda function
@@ -53,17 +53,31 @@ jobs:
       run: test -f lambda.zip && echo "Arquivo encontrado" || echo "Arquivo não encontrado"
     
     - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+    - name: AWS CLI Command
       with:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: us-east-1
-      args: configure
+        args: configure
     
     - name: Upload to S3
       with:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: us-east-1
-      args: s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
+        args: s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
+
+    # - name: Configurar credenciais de autenticação
+    #   env:
+    #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+    #   run: aws configure --debug
+
+    # - name: Upload to S3
+    #   env:
+    #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+    #   run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
