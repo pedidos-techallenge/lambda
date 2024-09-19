@@ -29,7 +29,7 @@ resource "aws_lambda_function" "hello_world" {
 }
 
 resource "aws_security_group" "lambda_sg" {
-  count = length(data.aws_security_group.existing_sg.ids) == 0 ? 1 : 0
+  count = length(data.aws_security_group.lambda_sg.ids) == 0 ? 1 : 0
 
   name        = "lambda_sg"
   description = "Security Group for Lambda function"
