@@ -62,6 +62,7 @@ jobs:
       args: configure
     
     - name: Upload to S3
+      uses: actions/checkout@v2
       with:
         args: s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
 
