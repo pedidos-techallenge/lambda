@@ -56,7 +56,7 @@ jobs:
         aws-region: us-east-1
       run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
     
-   - name: Apply Terraform
-     run: |
-      terraform init
-      terraform apply -input=false tfplan -auto-approve
+  #  - name: Apply Terraform
+  #    run: |
+  #     terraform init
+  #     terraform apply -input=false tfplan -auto-approve
