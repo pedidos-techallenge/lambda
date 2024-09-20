@@ -13,10 +13,6 @@ resource "aws_lambda_function" "hello_world" {
   role          = "arn:aws:iam::195169078299:role/LabRole"
   filename = "../lambda.zip"
 
-  # lifecycle {
-  #   prevent_destroy = true
-  # }
-
   environment {
     variables = {
       ENV_VAR = "value"
@@ -28,10 +24,18 @@ resource "aws_lambda_function" "hello_world" {
   }
 }
 
+### General data sources
+data "aws_vpc" "techchallenge-vpc" {
+  filter {
+    name   = "tag:Name"
+    values = ["techchallenge-vpc"]
+  }
+}
+
 resource "aws_security_group" "lambda_sg" {
   name        = "lambda_sg"
   description = "Security Group for Lambda function"
-  vpc_id      = "vpc-0e0d609eb36e1e778"
+  vpc_id      = data.aws_vpc.techchallenge-vpc.id
 
   ingress {
     from_port   = 443
