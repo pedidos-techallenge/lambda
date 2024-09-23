@@ -56,18 +56,28 @@ resource "aws_security_group" "lambda_sg" {
   }
 }
 
-data "aws_api_gateway_rest_api" "api" {
+d# API Gateway
+resource "aws_api_gateway_rest_api" "api" {
   name = "ApplicationEntry"
 }
 
-resource "aws_api_gateway_resource" "application_resource" {
+# Create child resources under the existing primary resource
+resource "aws_api_gateway_resource" "pedidos_resource" {
   rest_api_id = data.aws_api_gateway_rest_api.api.id
   parent_id   = data.aws_api_gateway_rest_api.api.root_resource_id
-  path_part        = "application"
+  path_part   = "pedidos"
 }
 
+# Nested Resource /pedidos/application
+resource "aws_api_gateway_resource" "application_resource" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_resource.pedidos_resource.id # link it under /pedidos
+  path_part   = "application"
+}
+
+# Method GET on /pedidos/application
 resource "aws_api_gateway_method" "get_method" {
-  rest_api_id   = data.aws_api_gateway_rest_api.api.id
+  rest_api_id   = aws_api_gateway_rest_api.api.id
   resource_id   = aws_api_gateway_resource.application_resource.id
   http_method   = "GET"
   authorization = "NONE"
@@ -75,13 +85,12 @@ resource "aws_api_gateway_method" "get_method" {
 
 # API Gateway Integration with Lambda
 resource "aws_api_gateway_integration" "lambda_integration" {
-  rest_api_id             = data.aws_api_gateway_rest_api.api.id
+  rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.application_resource.id
   http_method             = aws_api_gateway_method.get_method.http_method
-  integration_http_method = "GET"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.application_entry.invoke_arn
-  credentials             = "arn:aws:iam::195169078299:role/LabRole"
 }
 
 # Lambda Permission for API Gateway
@@ -90,12 +99,12 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.application_entry.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
 
 # Deploy API Gateway
 resource "aws_api_gateway_deployment" "api_deployment" {
-  depends_on = [aws_api_gateway_integration.lambda_integration, aws_lambda_permission.api_gateway_permission]
-  rest_api_id = data.aws_api_gateway_rest_api.api.id
-  stage_name  = "prod"
+  depends_on   = [aws_api_gateway_integration.lambda_integration, aws_lambda_permission.api_gateway_permission]
+  rest_api_id  = aws_api_gateway_rest_api.api.id
+  stage_name   = "prod"
 }
