@@ -70,7 +70,7 @@ resource "aws_api_gateway_resource" "pedidos_resource" {
 
 # Nested Resource /pedidos/application
 resource "aws_api_gateway_resource" "application_resource" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
+  rest_api_id = data.aws_api_gateway_rest_api.api.id
   parent_id   = aws_api_gateway_resource.pedidos_resource.id # link it under /pedidos
   path_part   = "application"
 }
