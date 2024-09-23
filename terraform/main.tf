@@ -57,7 +57,7 @@ resource "aws_security_group" "lambda_sg" {
 }
 
 # API Gateway
-resource "aws_api_gateway_rest_api" "api" {
+data "aws_api_gateway_rest_api" "api" {
   name = "ApplicationEntry"
 }
 
