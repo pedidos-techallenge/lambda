@@ -64,7 +64,7 @@ data "aws_api_gateway_rest_api" "api" {
 # Create child resources under the existing primary resource
 data "aws_api_gateway_resource" "pedidos_resource" {
   rest_api_id = data.aws_api_gateway_rest_api.api.id
-  path        = "/pedidos"
+  path        = "pedidos"
 }
 
 # Nested Resource /pedidos/application
@@ -90,6 +90,7 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.application_entry.invoke_arn
+  credentials             = "arn:aws:iam::195169078299:role/LabRole"
 }
 
 # Lambda Permission for API Gateway
