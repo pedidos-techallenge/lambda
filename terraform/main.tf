@@ -62,10 +62,9 @@ data "aws_api_gateway_rest_api" "api" {
 }
 
 # Create child resources under the existing primary resource
-resource "aws_api_gateway_resource" "pedidos_resource" {
+data "aws_api_gateway_resource" "pedidos_resource" {
   rest_api_id = data.aws_api_gateway_rest_api.api.id
-  parent_id   = data.aws_api_gateway_rest_api.api.root_resource_id
-  path_part   = "pedidos"
+  path        = "/pedidos"
 }
 
 # Nested Resource /pedidos/application
