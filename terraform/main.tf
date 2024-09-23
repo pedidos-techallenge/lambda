@@ -63,7 +63,7 @@ data "aws_api_gateway_rest_api" "api" {
 resource "aws_api_gateway_resource" "application_resource" {
   rest_api_id = data.aws_api_gateway_rest_api.api.id
   parent_id   = data.aws_api_gateway_rest_api.api.root_resource_id
-  path_part        = "pedidos"
+  path_part        = "pedidosapi"
 }
 
 resource "aws_api_gateway_method" "get_method" {
