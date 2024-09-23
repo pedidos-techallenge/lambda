@@ -78,7 +78,7 @@ resource "aws_api_gateway_resource" "application_resource" {
 # Method GET on /pedidos/application
 resource "aws_api_gateway_method" "get_method" {
   rest_api_id   = data.aws_api_gateway_rest_api.api.id
-  resource_id   = data.aws_api_gateway_resource.application_resource.id
+  resource_id   = aws_api_gateway_resource.application_resource.id
   http_method   = "GET"
   authorization = "NONE"
 }
