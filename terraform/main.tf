@@ -77,15 +77,15 @@ resource "aws_api_gateway_resource" "application_resource" {
 
 # Method GET on /pedidos/application
 resource "aws_api_gateway_method" "get_method" {
-  rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.application_resource.id
+  rest_api_id   = data.aws_api_gateway_rest_api.api.id
+  resource_id   = data.aws_api_gateway_resource.application_resource.id
   http_method   = "GET"
   authorization = "NONE"
 }
 
 # API Gateway Integration with Lambda
 resource "aws_api_gateway_integration" "lambda_integration" {
-  rest_api_id             = aws_api_gateway_rest_api.api.id
+  rest_api_id             = data.aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.application_resource.id
   http_method             = aws_api_gateway_method.get_method.http_method
   integration_http_method = "POST"
@@ -99,12 +99,12 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.application_entry.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
 
 # Deploy API Gateway
 resource "aws_api_gateway_deployment" "api_deployment" {
   depends_on   = [aws_api_gateway_integration.lambda_integration, aws_lambda_permission.api_gateway_permission]
-  rest_api_id  = aws_api_gateway_rest_api.api.id
+  rest_api_id  = data.aws_api_gateway_rest_api.api.id
   stage_name   = "prod"
 }
