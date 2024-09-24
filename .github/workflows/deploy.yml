@@ -37,17 +37,12 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Generate unique filename for Lambda zip
-      run: |
-        ZIPNAME_ENV="lambda_$(date +%s).zip"
-        echo "ZIPNAME_ENV=$ZIPNAME_ENV" >> $GITHUB_ENV
-
-    - name: Zip Lambda function with unique name
-      run: zip -r $ZIPNAME_ENV lambda/
-
+    - name: Zip Lambda function
+      run: zip -r lambda.zip lambda/
+    
     - name: Verify if the zip file exists
-      run: test -f $ZIPNAME_ENV && echo "The file was found" || echo "The file was not found"
-
+      run: test -f lambda.zip && echo "Found file" || echo "Not found file"
+    
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -55,23 +50,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
         aws-region: us-east-1
-
-    - name: Upload to S3
-      run: aws s3 cp $ZIPNAME_ENV s3://bucket-tfstates-postech-fiap-6soat/$ZIPNAME_ENV
-
-    # - name: Zip Lambda function
-    #   run: zip -r lambda.zip lambda/
     
-    # - name: Verify if the zip file exists
-    #   run: test -f lambda.zip && echo "Arquivo encontrado" || echo "Arquivo não encontrado"
-    
-    # - name: Configure AWS Credentials
-    #   uses: aws-actions/configure-aws-credentials@v2
-    #   with:
-    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-    #     aws-region: us-east-1
-    
-    # - name: Upload to S3
-    #   run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
+    - name: Upload to S3 (replace existing lambda.zip)
+      run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip --acl bucket-owner-full-control
