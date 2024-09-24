@@ -11,7 +11,7 @@ resource "aws_lambda_function" "application_entry" {
   handler       = "index.handler"
   runtime       = "nodejs18.x"
   role          = "arn:aws:iam::195169078299:role/LabRole"
-  s3_bucket     = "s3://bucket-tfstates-postech-fiap-6soat"
+  s3_bucket     = "bucket-tfstates-postech-fiap-6soat"
   s3_key        = "lambda.zip"
 
   environment {
