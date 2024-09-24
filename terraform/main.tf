@@ -8,7 +8,7 @@ terraform {
 
 resource "aws_lambda_function" "application_entry" {
   function_name = "application_entry"
-  handler       = "index.handler"
+  handler       = "lambda/index.handler"
   runtime       = "nodejs18.x"
   role          = "arn:aws:iam::195169078299:role/LabRole"
   s3_bucket     = "bucket-tfstates-postech-fiap-6soat"
