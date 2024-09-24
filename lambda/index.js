@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk');
+//const AWS = require('aws-sdk');
 
 const clientId = process.secrets.COGNITO_CLIENT_ID;
 const cognitoDomain = process.secrets.COGNITO_DOMAIN;
