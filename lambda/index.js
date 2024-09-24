@@ -1,8 +1,8 @@
 //const AWS = require('aws-sdk');
 
-const clientId = process.secrets.COGNITO_CLIENT_ID;
-const cognitoDomain = process.secrets.COGNITO_DOMAIN;
-const redirectUri = process.secrets.COGNITO_REDIRECT_URI;
+const clientId = process.env.COGNITO_CLIENT_ID;
+const cognitoDomain = process.env.COGNITO_DOMAIN;
+const redirectUri = process.env.COGNITO_REDIRECT_URI;
 
 exports.handler = async (event) => {
     const requestBody = JSON.parse(event.body);
