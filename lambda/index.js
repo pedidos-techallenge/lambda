@@ -10,9 +10,9 @@ exports.handler = async (event) => {
 
 
     // Verify if CPF is in the body
-    const cpf = requestBody.cpf;
+    const cpf = requestBody && requestBody.cpf ? requestBody.cpf : null;
 
-    if (cpf) {
+    if (cpf != null) {
         try {
             return {
                 statusCode: 302,
