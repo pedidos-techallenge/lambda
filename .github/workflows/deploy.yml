@@ -75,8 +75,12 @@ jobs:
 
     - name: Update Lambda Environment Configuration
       run: |
+        VARIABLES=$(jq -n \
+          --arg COGNITO_CLIENT_ID "${{ secrets.COGNITO_CLIENT_ID }}" \
+          --arg COGNITO_DOMAIN "${{ secrets.COGNITO_DOMAIN }}" \
+          --arg COGNITO_REDIRECT_URI "${{ secrets.COGNITO_REDIRECT_URI }}" \
+          '{Variables: {COGNITO_CLIENT_ID: $COGNITO_CLIENT_ID, COGNITO_DOMAIN: $COGNITO_DOMAIN, COGNITO_REDIRECT_URI: $COGNITO_REDIRECT_URI}}')
         aws lambda update-function-configuration \
         --function-name application_entry \
-        --environment "Variables={COGNITO_CLIENT_ID='${{ secrets.COGNITO_CLIENT_ID }}',COGNITO_DOMAIN='${{ secrets.COGNITO_DOMAIN }}', COGNITO_REDIRECT_URI='${{ secrets.COGNITO_REDIRECT_URI }}'"
-
+        --environment "$VARIABLES"
           
