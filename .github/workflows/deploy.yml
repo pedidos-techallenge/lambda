@@ -58,8 +58,25 @@ jobs:
       run: |
         aws lambda update-function-code \
         --function-name application_entry \
-        --environment "Variables={COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }},COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN }},COGNITO_REDIRECT_URI=${{ secrets.COGNITO_REDIRECT_URI }}}" \
         --s3-bucket bucket-tfstates-postech-fiap-6soat \
         --s3-key lambda.zip \
+    
+    - name: Wait for Lambda to be ready
+      run: |
+        while true; do
+          STATUS=$(aws lambda get-function --function-name application_entry --query 'Configuration.LastUpdateStatus' --output text)
+          echo "Current status: $STATUS"
+          if [ "$STATUS" != "InProgress" ]; then
+            break
+          fi
+          echo "Waiting for the function to be ready..."
+          sleep 10
+        done
+
+    - name: Update Lambda Environment Configuration
+      run: |
+        aws lambda update-function-configuration \
+        --function-name application_entry \
+        --environment "Variables={COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }},COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN }},COGNITO_REDIRECT_URI=${{ secrets.COGNITO_REDIRECT_URI }}"
 
           
