@@ -55,7 +55,7 @@ exports.handler = async (event) => {
                         statusCode: 401,
                         body: JSON.stringify({
                             message: 'CPF supplied is not in the database.',
-                            error: error.message,
+                            error: 'CPF supplied is not in the database.',
                         }),
                     }
                 }
@@ -64,7 +64,7 @@ exports.handler = async (event) => {
                     statusCode: 500,
                     body: JSON.stringify({
                         message: 'Failed to conect to cognito.',
-                        error: error.message,
+                        error: 'Failed to conect to cognito.',
                     }),
                 };
             }
@@ -74,7 +74,7 @@ exports.handler = async (event) => {
                 statusCode: 400,
                 body: JSON.stringify({
                     message: 'CPF is invalid.',
-                    error: error.message,
+                    error: 'CPF is invalid.',
                 }),
             }
         }
