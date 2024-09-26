@@ -23,7 +23,9 @@ exports.handler = async (event) => {
     if (cpf != null) {
         console.log("DIFERENTE DE NULL AAAAAAAAAAAAA")
 
-        if (validateCPF(cpf)) {
+        console.log("cpf aaaaaaaaaaaaaaaaaa ========= ", cpf)
+        isValid = validateCPF(cpf)
+        if (isValid) {
             console.log("CPF VALIDO AAAAAAAAAAAAAA")
             // Login
             try {
