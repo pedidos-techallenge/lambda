@@ -6,6 +6,7 @@ const {
 const clientId = process.env.COGNITO_CLIENT_ID;
 const cognitoDomain = process.env.COGNITO_DOMAIN;
 const redirectUri = process.env.COGNITO_REDIRECT_URI;
+const cognitoUserPoolId = process.env.COGNITO_USER_POOL_ID
 
 const cognitoClient = new CognitoIdentityProviderClient({ region: "us-east-1" });
 
@@ -32,7 +33,7 @@ exports.handler = async (event) => {
             // Login
             try {
                 const params = {
-                    UserPoolId: process.env.COGNITO_USER_POOL_ID,
+                    UserPoolId: cognitoUserPoolId,
                     Filter: `username = "${cpf}"`,
                 };
                 
