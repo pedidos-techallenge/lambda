@@ -1,9 +1,13 @@
-const AWS = require('aws-sdk');
-const cognito = new AWS.CognitoIdentityServiceProvider();
+const {
+    CognitoIdentityProviderClient,
+    ListUsersCommand
+} = require("@aws-sdk/client-cognito-identity-provider");
 
 const clientId = process.env.COGNITO_CLIENT_ID;
 const cognitoDomain = process.env.COGNITO_DOMAIN;
 const redirectUri = process.env.COGNITO_REDIRECT_URI;
+
+const cognitoClient = new CognitoIdentityProviderClient({ region: "us-east-1" });
 
 function validateCPF(cpf) {
     const cpfRegex = /^\d{11}$/;
@@ -27,7 +31,8 @@ exports.handler = async (event) => {
                     Filter: `username = "${cpf}"`,
                 };
                 
-                const result = await cognito.listUsers(params).promise();
+                const command = new ListUsersCommand(params);
+                const result = await cognitoClient.send(command);
         
                 if (result.Users.length > 0) {
                     // CPF is valid, go to cognito authentication
