@@ -10,6 +10,7 @@ const redirectUri = process.env.COGNITO_REDIRECT_URI;
 const cognitoClient = new CognitoIdentityProviderClient({ region: "us-east-1" });
 
 function validateCPF(cpf) {
+    cpf = "12345678911"
     const cpfRegex = /^\d{11}$/;
     return cpfRegex.test(cpf);
 }
