@@ -16,7 +16,10 @@ function validateCPF(cpf) {
 }
 
 exports.handler = async (event) => {
+    console.log("EVENT: ", event)
     const requestBody = JSON.parse(event.body);
+
+    console.log("REQUEST BODY: ", requestBody)
     const cognitoUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/login?client_id=${clientId}&response_type=code&scope=openid&redirect_uri=${redirectUri}`;
 
 
