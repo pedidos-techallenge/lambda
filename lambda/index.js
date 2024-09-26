@@ -1,8 +1,14 @@
-//const AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
+const cognito = new AWS.CognitoIdentityServiceProvider();
 
 const clientId = process.env.COGNITO_CLIENT_ID;
 const cognitoDomain = process.env.COGNITO_DOMAIN;
 const redirectUri = process.env.COGNITO_REDIRECT_URI;
+
+function validateCPF(cpf) {
+    const cpfRegex = /^\d{11}$/;
+    return cpfRegex.test(cpf);
+}
 
 exports.handler = async (event) => {
     const requestBody = JSON.parse(event.body);
@@ -13,31 +19,52 @@ exports.handler = async (event) => {
     const cpf = requestBody && requestBody.cpf ? requestBody.cpf : null;
 
     if (cpf != null) {
-        try {
-            return {
-                statusCode: 302,
-                headers: {
-                    Location: cognitoUrl,
-                },
-                body: JSON.stringify({
-                    message: 'Redirecting to cognito authentication...',
-                }),
-            };
-        } catch (error) {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({
-                    message: 'Failed to conect to cognito.',
-                    error: error.message,
-                }),
-            };
+        if (validateCPF(cpf)) {
+            // Login
+            try {
+                const params = {
+                    UserPoolId: process.env.COGNITO_USER_POOL_ID,
+                    Filter: `username = "${cpf}"`,
+                };
+                
+                const result = await cognito.listUsers(params).promise();
+        
+                if (result.Users.length > 0) {
+                    // CPF is valid, go to cognito authentication
+                    return {
+                        statusCode: 302,
+                        headers: {
+                            Location: cognitoUrl,
+                        },
+                        body: JSON.stringify({
+                            message: 'Redirecting to Cognito for authentication...',
+                        }),
+                    };
+                } else {
+                    return {
+                        statusCode: 401,
+                        body: JSON.stringify({
+                            message: 'CPF supplied is not in the database.',
+                            error: error.message,
+                        }),
+                    }
+                }
+            } catch (error) {
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({
+                        message: 'Failed to conect to cognito.',
+                        error: error.message,
+                    }),
+                };
+            }
         }
     } else {
-        // Se não houver CPF, redireciona diretamente para a aplicação
+        // Client not identified, do not login, go to application direclty
         return {
             statusCode: 302,
             headers: {
-                Location: 'https://pudim.com', // URL da aplicação
+                Location: 'https://pudim.com.br',
             },
             body: JSON.stringify({
                 message: 'Redirecting to application...',
