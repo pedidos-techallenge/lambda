@@ -10,8 +10,9 @@ const redirectUri = process.env.COGNITO_REDIRECT_URI;
 const cognitoClient = new CognitoIdentityProviderClient({ region: "us-east-1" });
 
 function validateCPF(cpf) {
-    const cpfRegex = /^\d{11}$/;
-    return cpfRegex.test(cpf);
+    // const cpfRegex = /^\d{11}$/;
+    // return cpfRegex.test(cpf);
+    return true;
 }
 
 exports.handler = async (event) => {
@@ -23,7 +24,10 @@ exports.handler = async (event) => {
     const cpf = requestBody && requestBody.cpf ? requestBody.cpf : null;
 
     if (cpf != null) {
+        console.log("DIFERENTE DE NULL AAAAAAAAAAAAA")
+
         if (validateCPF(cpf)) {
+            console.log("CPF VALIDO AAAAAAAAAAAAAA")
             // Login
             try {
                 const params = {
@@ -36,6 +40,7 @@ exports.handler = async (event) => {
         
                 if (result.Users.length > 0) {
                     // CPF is valid, go to cognito authentication
+                    console.log("achou o usuario aaaaaaaaaaaaaaaaaaaaaaaa")
                     return {
                         statusCode: 302,
                         headers: {
@@ -46,6 +51,7 @@ exports.handler = async (event) => {
                         }),
                     };
                 } else {
+                    console.log("não achou o usuario aaaaaaaaaaaaaaaaaaaaaaaa")
                     return {
                         statusCode: 401,
                         body: JSON.stringify({
@@ -62,6 +68,15 @@ exports.handler = async (event) => {
                         error: error.message,
                     }),
                 };
+            }
+        } else {
+            console.log("cpf invalidoooooooooooo")
+            return {
+                statusCode: 400,
+                body: JSON.stringify({
+                    message: 'CPF is invalid.',
+                    error: error.message,
+                }),
             }
         }
     } else {
