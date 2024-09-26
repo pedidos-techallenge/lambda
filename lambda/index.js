@@ -10,7 +10,7 @@ const redirectUri = process.env.COGNITO_REDIRECT_URI;
 const cognitoClient = new CognitoIdentityProviderClient({ region: "us-east-1" });
 
 function validateCPF(cpf) {
-    cpf = "12345678911"
+    // cpf = "12345678911"
     const cpfRegex = /^\d{11}$/;
     return cpfRegex.test(cpf);
 }
@@ -18,14 +18,15 @@ function validateCPF(cpf) {
 exports.handler = async (event) => {
     console.log("EVENT: ", event)
     const cpf = event.queryStringParameters && event.queryStringParameters.cpf ? event.queryStringParameters.cpf : null;
+    const cpfString = String(cpf)
 
     const cognitoUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/login?client_id=${clientId}&response_type=code&scope=openid&redirect_uri=${redirectUri}`;
 
     if (cpf != null) {
         console.log("DIFERENTE DE NULL AAAAAAAAAAAAA")
 
-        console.log("cpf aaaaaaaaaaaaaaaaaa ========= ", cpf)
-        isValid = validateCPF(cpf)
+        console.log("cpf string aaaaaaaaaaaaaaaaaa ========= ", cpfString)
+        isValid = validateCPF(cpfString)
         if (isValid) {
             console.log("CPF VALIDO AAAAAAAAAAAAAA")
             // Login
