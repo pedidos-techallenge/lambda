@@ -20,7 +20,7 @@ exports.handler = async (event) => {
     const requestBody = JSON.parse(event.body);
     var cpf = null;
     if (requestBody != null && cpf in requestBody) {
-        pf = requestBody.cpf;
+        cpf = requestBody.cpf;
     }
 
     const cognitoUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/login?client_id=${clientId}&response_type=code&scope=openid&redirect_uri=${redirectUri}`;
