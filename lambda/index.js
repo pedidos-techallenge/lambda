@@ -22,7 +22,7 @@ exports.handler = async (event) => {
     var cpf = null;
 
     console.log("meu body: ", requestBody)
-    if (requestBody != null && cpf in requestBody) {
+    if (requestBody != null && 'cpf' in requestBody) {
         console.log("entrei no if do cpf")
         cpf = requestBody.cpf;
 
