@@ -21,11 +21,11 @@ exports.handler = async (event) => {
     const cpf = requestBody.cpf;
 
     // const cpf = event.queryStringParameters && event.queryStringParameters.cpf ? event.queryStringParameters.cpf : null;
-    const cpfString = String(cpf)
 
     const cognitoUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/login?client_id=${clientId}&response_type=code&scope=openid&redirect_uri=${redirectUri}`;
 
     if (cpf != null) {
+        const cpfString = String(cpf)
         console.log("DIFERENTE DE NULL AAAAAAAAAAAAA")
 
         console.log("cpf string aaaaaaaaaaaaaaaaaa ========= ", cpfString)
