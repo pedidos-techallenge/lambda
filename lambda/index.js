@@ -18,6 +18,7 @@ function validateCPF(cpf) {
 
 exports.handler = async (event) => {
     const requestBody = JSON.parse(event.body);
+    console.log("EVENT AAAAAAAA:\n", event)
     var cpf = null;
     if (requestBody != null && cpf in requestBody) {
         cpf = requestBody.cpf;
