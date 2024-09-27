@@ -17,8 +17,10 @@ function validateCPF(cpf) {
 }
 
 exports.handler = async (event) => {
-    console.log("EVENT: ", event)
-    const cpf = event.queryStringParameters && event.queryStringParameters.cpf ? event.queryStringParameters.cpf : null;
+    const requestBody = JSON.parse(event.body);
+    const cpf = requestBody.cpf;
+
+    // const cpf = event.queryStringParameters && event.queryStringParameters.cpf ? event.queryStringParameters.cpf : null;
     const cpfString = String(cpf)
 
     const cognitoUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/login?client_id=${clientId}&response_type=code&scope=openid&redirect_uri=${redirectUri}`;
