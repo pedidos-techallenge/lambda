@@ -67,7 +67,7 @@ exports.handler = async (event) => {
                     statusCode: 500,
                     body: JSON.stringify({
                         message: 'Failed to conect to cognito.',
-                        error: 'Failed to conect to cognito.   ' + error,
+                        error: 'Failed to conect to cognito.   ',
                     }),
                 };
             }

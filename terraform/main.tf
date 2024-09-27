@@ -83,6 +83,32 @@ resource "aws_api_gateway_method" "get_method" {
   authorization = "NONE"
 }
 
+# Nested Resource /pedidos/application/cpf
+resource "aws_api_gateway_resource" "cpf_resource" {
+  rest_api_id = data.aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_resource.application_resource.id # link it under /pedidos/application
+  path_part   = "cpf"
+}
+
+# Method POST on /pedidos/application/cpf
+resource "aws_api_gateway_method" "post_method_cpf" {
+  rest_api_id   = data.aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.cpf_resource.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+# API Gateway Integration with Lambda for CPF
+resource "aws_api_gateway_integration" "lambda_integration_cpf" {
+  rest_api_id             = data.aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.cpf_resource.id
+  http_method             = aws_api_gateway_method.post_method_cpf.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.application_entry.invoke_arn
+  credentials             = "arn:aws:iam::195169078299:role/LabRole"
+}
+
 # API Gateway Integration with Lambda
 resource "aws_api_gateway_integration" "lambda_integration" {
   rest_api_id             = data.aws_api_gateway_rest_api.api.id
