@@ -25,10 +25,12 @@ exports.handler = async (event) => {
         cpf = requestBody.cpf;
     }
 
-    if (httpMethod === "POST" && event.path === "/pedidos/application/register") {
-        const requestBody = JSON.parse(event.body);
+    if (requestBody != null && 'email' in requestBody) {
+        email = requestBody.email;
+    }
 
-        const { cpf, email } = requestBody;
+    if (httpMethod === "POST" && event.path === "/pedidos/application/register") {
+
         if (cpf != null) {
 
             isCPFValid = validateCPF(cpf)
@@ -44,7 +46,12 @@ exports.handler = async (event) => {
                 };
             }
 
-            const data = await cognitoIdentityServiceProvider.adminGetUser(params).promise();
+            const validateParams = {
+                UserPoolId: cognitoUserPoolId,
+                Username: cpfString,
+            };
+
+            const data = await cognitoIdentityServiceProvider.adminGetUser(validateParams).promise();
             if (data) {
                 return {
                     statusCode: 400,
@@ -57,7 +64,7 @@ exports.handler = async (event) => {
                 };
             } else {
 
-                const params = {
+                const registerParams = {
                     UserPoolId: cognitoUserPoolId,
                     Username: cpf,
                     // TemporaryPassword: '123456',
@@ -70,7 +77,7 @@ exports.handler = async (event) => {
                 };
 
                 try {
-                    const registerResponse = await cognitoIdentityServiceProvider.signUp(params).promise();
+                    const registerResponse = await cognitoIdentityServiceProvider.signUp(registerParams).promise();
                     return {
                         statusCode: 200,
                         headers: {
@@ -90,6 +97,16 @@ exports.handler = async (event) => {
                     }   
                 }
             }
+        } else {
+            return {
+                statusCode: 400,
+                headers: {
+                    Location: cognitoUrl,
+                },
+                body: JSON.stringify({
+                    message: 'Missing CPF',
+                }),
+            };
         }
     }
 
