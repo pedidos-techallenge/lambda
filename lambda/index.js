@@ -34,6 +34,11 @@ exports.handler = async (event) => {
         email = requestBody.email;
     }
 
+    var userPassword = "";
+    if (requestBody != null && 'password' in requestBody) {
+        userPassword = requestBody.password
+    }
+
     if (httpMethod === "POST" && event.path === "/pedidos/application/register") {
 
         if (cpf != null) {
@@ -72,8 +77,8 @@ exports.handler = async (event) => {
 
                     var registerParams = {
                         UserPoolId: cognitoUserPoolId,
-                        Username: cpf,
-                        // TemporaryPassword: '123456',
+                        Username: cpfString,
+                        TemporaryPassword: userPassword,
                         UserAttributes: [
                             {
                                 Name: 'email',
@@ -85,9 +90,9 @@ exports.handler = async (event) => {
             } catch (error) {
                 if (error.code === 'UserNotFoundException') {
                     var registerParams = {
-                        UserPoolId: cognitoUserPoolId,
-                        Username: cpf,
-                        // TemporaryPassword: '123456',
+                        clientId: clientId,
+                        Username: cpfString,
+                        TemporaryPassword: userPassword,
                         UserAttributes: [
                             {
                                 Name: 'email',
