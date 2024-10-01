@@ -76,7 +76,7 @@ exports.handler = async (event) => {
                 } else {
 
                     var registerParams = {
-                        UserPoolId: cognitoUserPoolId,
+                        ClientId: clientId,
                         Username: cpfString,
                         TemporaryPassword: userPassword,
                         UserAttributes: [
