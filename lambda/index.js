@@ -21,6 +21,8 @@ exports.handler = async (event) => {
     const httpMethod = event.httpMethod;
     var cpf = null;
 
+    console.log("event: ", event)
+
     if (requestBody != null && 'cpf' in requestBody) {
         cpf = requestBody.cpf;
     }
