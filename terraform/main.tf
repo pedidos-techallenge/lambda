@@ -107,9 +107,18 @@ resource "aws_api_gateway_integration" "lambda_integration_cpf" {
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.application_entry.invoke_arn
   credentials             = "arn:aws:iam::195169078299:role/LabRole"
+
+  request_templates = {
+    "application/json" = <<EOF
+    {
+      "body" : $input.json('$'),
+      "cpf" : "$input.params('cpf')"
+    }
+    EOF
+  }
 }
 
-# API Gateway Integration with Lambda
+# API Gateway Integration with Lambda (/pedidos/application)
 resource "aws_api_gateway_integration" "lambda_integration" {
   rest_api_id             = data.aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.application_resource.id
@@ -126,7 +135,7 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.application_entry.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/POST/pedidos/application/cpf"
 }
 
 # Deploy API Gateway

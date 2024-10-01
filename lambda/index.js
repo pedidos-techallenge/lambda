@@ -1,13 +1,26 @@
-const {
-    CognitoIdentityProviderClient,
-    ListUsersCommand
-} = require("@aws-sdk/client-cognito-identity-provider");
+const AWS = require('aws-sdk');
+const { cp } = require('fs');
+const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({
+    region: 'us-east-1'
+});
 
 const clientId = process.env.COGNITO_CLIENT_ID;
 const cognitoDomain = process.env.COGNITO_DOMAIN;
 const redirectUri = process.env.COGNITO_REDIRECT_URI;
 const cognitoUserPoolId = process.env.COGNITO_USER_POOL_ID
-const cognitoClient = new CognitoIdentityProviderClient({ region: "us-east-1" });
+
+//const cognitoClient = new CognitoIdentityProviderClient({ region: "us-east-1" });
+
+// const clientId="2irn4ti87780cmv6v5fndebbn8"
+// const cognitoDomain="https://pos-tech-challenge.auth.us-east-1.amazoncognito.com"
+// const redirectUri="https://github.com/queirozingrid"
+// const cognitoUserPoolId="us-east-1_aUa1CwVit"
+
+
+function validateCPF(cpf) {
+    const cpfRegex = /^\d{11}$/;
+    return cpfRegex.test(cpf);
+}
 
 exports.handler = async (event) => {
     const requestBody = JSON.parse(event.body);
@@ -21,11 +34,26 @@ exports.handler = async (event) => {
 
     if (cpf != null) {
         const cpfString = String(cpf)
-        isValid = validateCPF(cpfString)
 
+        isValid = validateCPF(cpfString)
         if (isValid) {
+            console.log("CPF VALIDO AAAAAAAAAAAAAA")
+            // Login
             try {
-                if (tryLogin(cpf)) {
+                const params = {
+                    UserPoolId: cognitoUserPoolId,
+                    Username: cpfString,
+                };
+                
+                console.log("Params: ", params)
+
+                const data = await cognitoIdentityServiceProvider.adminGetUser(params).promise();
+
+                console.log("Data: ", data)
+
+                if (data) {
+                    // CPF is valid, go to cognito authentication
+                    console.log("achou o usuario aaaaaaaaaaaaaaaaaaaaaaaa")
                     return {
                         statusCode: 302,
                         headers: {
@@ -34,8 +62,9 @@ exports.handler = async (event) => {
                         body: JSON.stringify({
                             message: 'Redirecting to Cognito for authentication...',
                         }),
-                    }
+                    };
                 } else {
+                    console.log("não achou o usuario aaaaaaaaaaaaaaaaaaaaaaaa")
                     return {
                         statusCode: 401,
                         body: JSON.stringify({
@@ -45,6 +74,7 @@ exports.handler = async (event) => {
                     }
                 }
             } catch (error) {
+                console.log("erro: ", error)
                 return {
                     statusCode: 500,
                     body: JSON.stringify({
@@ -54,6 +84,7 @@ exports.handler = async (event) => {
                 };
             }
         } else {
+            console.log("cpf invalidoooooooooooo")
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -75,31 +106,3 @@ exports.handler = async (event) => {
         };
     }
 };
-
-function tryLogin(cpf) {
-    // Login
-    try {
-        const params = {
-            UserPoolId: cognitoUserPoolId,
-            Filter: `username = "${cpf}"`,
-        };
-        
-        const command = new ListUsersCommand(params);
-        const result = cognitoClient.send(command);
-
-        if (result.Users.length > 0) {
-            // Existing user, login
-            return true;
-        } else {
-            return false;
-        }
-    } catch (error) {
-        throw new Error(error)
-    }
-}
-
-function validateCPF(cpf) {
-    // cpf = "12345678911"
-    const cpfRegex = /^\d{11}$/;
-    return cpfRegex.test(cpf);
-}
