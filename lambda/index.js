@@ -21,8 +21,6 @@ exports.handler = async (event) => {
     const httpMethod = event.httpMethod;
     var cpf = null;
 
-    console.log("event: ", event)
-
     if (requestBody != null && 'cpf' in requestBody) {
         cpf = requestBody.cpf;
     }
@@ -30,12 +28,10 @@ exports.handler = async (event) => {
     if (httpMethod === "POST" && event.path === "/pedidos/application/register") {
         const requestBody = JSON.parse(event.body);
 
-        email = ""
+        const { cpf, email } = requestBody;
+        if (cpf != null) {
 
-        const { username, email } = requestBody;
-        if (username != null) {
-
-            isCPFValid = validateCPF(username)
+            isCPFValid = validateCPF(cpf)
             if (!isCPFValid) {
                 return {
                     statusCode: 400,
@@ -63,7 +59,7 @@ exports.handler = async (event) => {
 
                 const params = {
                     UserPoolId: cognitoUserPoolId,
-                    Username: username,
+                    Username: cpf,
                     // TemporaryPassword: '123456',
                     UserAttributes: [
                         {

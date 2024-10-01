@@ -146,7 +146,9 @@ resource "aws_api_gateway_integration" "lambda_integration_register" {
   request_templates = {
     "application/json" = <<EOF
     {
-      "body" : $input.json('$')
+      "body" : $input.json('$'),
+      "cpf" : "$input.params('cpf')"
+      "email" : "$input.params('email')"
     }
     EOF
   }
