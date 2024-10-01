@@ -78,7 +78,7 @@ exports.handler = async (event) => {
                     var registerParams = {
                         ClientId: clientId,
                         Username: cpfString,
-                        TemporaryPassword: userPassword,
+                        Password: userPassword,
                         UserAttributes: [
                             {
                                 Name: 'email',
@@ -90,9 +90,9 @@ exports.handler = async (event) => {
             } catch (error) {
                 if (error.code === 'UserNotFoundException') {
                     var registerParams = {
-                        clientId: clientId,
+                        ClientId: clientId,
                         Username: cpfString,
-                        TemporaryPassword: userPassword,
+                        Password: userPassword,
                         UserAttributes: [
                             {
                                 Name: 'email',
