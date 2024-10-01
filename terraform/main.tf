@@ -173,7 +173,7 @@ resource "aws_lambda_permission" "api_gateway_permission" {
 }
 
 # Lambda Permission for API Gateway
-resource "aws_lambda_permission" "api_gateway_permission_register_register" {
+resource "aws_lambda_permission" "api_gateway_permission_register" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.application_entry.function_name
