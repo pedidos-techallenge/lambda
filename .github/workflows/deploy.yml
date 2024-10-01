@@ -37,8 +37,11 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
+    - name: Setup AWS CLI
+      run: npm install aws-sdk
+
     - name: Zip Lambda function
-      run: zip -r lambda.zip lambda/
+      run: zip -r lambda.zip lambda/index.js lambda/package.json
     
     - name: Verify if the zip file exists
       run: test -f lambda.zip && echo "Found file" || echo "Not found file"
