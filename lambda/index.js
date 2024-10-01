@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const { cp } = require('fs');
+const { stringify } = require('querystring');
 const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({
     region: 'us-east-1'
 });
@@ -51,7 +52,7 @@ exports.handler = async (event) => {
 
             const validateParams = {
                 UserPoolId: cognitoUserPoolId,
-                Username: cpf,
+                Username: cpfString,
             };
 
             const data = await cognitoIdentityServiceProvider.adminGetUser(validateParams).promise();
