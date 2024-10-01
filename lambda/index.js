@@ -55,51 +55,67 @@ exports.handler = async (event) => {
                 Username: cpfString,
             };
 
-            const data = await cognitoIdentityServiceProvider.adminGetUser(validateParams).promise();
-            if (data) {
-                return {
-                    statusCode: 400,
-                    headers: {
-                        Location: cognitoUrl,
-                    },
-                    body: JSON.stringify({
-                        message: 'User with this CPF already exists...',
-                    }),
-                };
-            } else {
-
-                const registerParams = {
-                    UserPoolId: cognitoUserPoolId,
-                    Username: cpf,
-                    // TemporaryPassword: '123456',
-                    UserAttributes: [
-                        {
-                            Name: 'email',
-                            Value: email,
-                        },
-                    ],
-                };
-
-                try {
-                    const registerResponse = await cognitoIdentityServiceProvider.signUp(registerParams).promise();
+            try {
+                const data = await cognitoIdentityServiceProvider.adminGetUser(validateParams).promise();
+                if (data) {
                     return {
-                        statusCode: 200,
+                        statusCode: 400,
                         headers: {
                             Location: cognitoUrl,
                         },
                         body: JSON.stringify({
-                            message: 'Redirecting to Cognito for authentication...',
+                            message: 'User with this CPF already exists...',
                         }),
-                    }
-                } catch (error) {
-                    return {
-                        statusCode: 500,
-                        body: JSON.stringify({
-                            message: 'Failed to conect to cognito.',
-                            error: 'Failed to conect to cognito.   ' + error,
-                        }),
-                    }   
+                    };
+                } else {
+
+                    var registerParams = {
+                        UserPoolId: cognitoUserPoolId,
+                        Username: cpf,
+                        // TemporaryPassword: '123456',
+                        UserAttributes: [
+                            {
+                                Name: 'email',
+                                Value: email,
+                            },
+                        ],
+                    };
                 }
+            } catch (error) {
+                if (error.code === 'UserNotFoundException') {
+                    var registerParams = {
+                        UserPoolId: cognitoUserPoolId,
+                        Username: cpf,
+                        // TemporaryPassword: '123456',
+                        UserAttributes: [
+                            {
+                                Name: 'email',
+                                Value: email,
+                            },
+                        ],
+                    };
+                }
+            }
+
+            try {
+                const registerResponse = await cognitoIdentityServiceProvider.signUp(registerParams).promise();
+                return {
+                    statusCode: 200,
+                    headers: {
+                        Location: cognitoUrl,
+                    },
+                    body: JSON.stringify({
+                        message: 'Redirecting to Cognito for authentication...',
+                    }),
+                }
+            } catch (error) {
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({
+                        message: 'Failed to conect to cognito.',
+                        error: 'Failed to conect to cognito.   ' + error,
+                    }),
+                }   
             }
         } else {
             return {
