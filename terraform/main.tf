@@ -118,6 +118,40 @@ resource "aws_api_gateway_integration" "lambda_integration_cpf" {
   }
 }
 
+# Nested Resource /pedidos/application/register
+resource "aws_api_gateway_resource" "register_resource" {
+  rest_api_id = data.aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_resource.application_resource.id # link it under /pedidos/application
+  path_part   = "register"
+}
+
+# Method POST on /pedidos/application/register
+resource "aws_api_gateway_method" "post_method_register" {
+  rest_api_id   = data.aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.register_resource.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+# API Gateway Integration with Lambda for Register User
+resource "aws_api_gateway_integration" "lambda_integration_register" {
+  rest_api_id             = data.aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.register_resource.id
+  http_method             = aws_api_gateway_method.post_method_register.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.application_entry.invoke_arn
+  credentials             = "arn:aws:iam::195169078299:role/LabRole"
+
+  request_templates = {
+    "application/json" = <<EOF
+    {
+      "body" : $input.json('$')
+    }
+    EOF
+  }
+}
+
 # API Gateway Integration with Lambda (/pedidos/application)
 resource "aws_api_gateway_integration" "lambda_integration" {
   rest_api_id             = data.aws_api_gateway_rest_api.api.id
@@ -140,7 +174,12 @@ resource "aws_lambda_permission" "api_gateway_permission" {
 
 # Deploy API Gateway
 resource "aws_api_gateway_deployment" "api_deployment" {
-  depends_on   = [aws_api_gateway_integration.lambda_integration, aws_lambda_permission.api_gateway_permission, aws_api_gateway_integration.lambda_integration_cpf]
+  depends_on   = [
+    aws_api_gateway_integration.lambda_integration,
+    aws_lambda_permission.api_gateway_permission,
+    aws_api_gateway_integration.lambda_integration_cpf,
+    aws_api_gateway_integration.lambda_integration_register
+  ]
   rest_api_id  = data.aws_api_gateway_rest_api.api.id
   stage_name   = "prod"
 }

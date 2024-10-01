@@ -32,28 +32,27 @@ exports.handler = async (event) => {
 
     const cognitoUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/login?client_id=${clientId}&response_type=code&scope=openid&redirect_uri=${redirectUri}`;
 
+    if (httpMethod === "POST" && event.path === "/pedidos/register") {
+        console.log("AAAAAAAAAAAAAAAAA: ")
+        const requestBody = JSON.parse(event.body);
+        const { username, password, email } = requestBody;
+    }
     if (cpf != null) {
         const cpfString = String(cpf)
 
         isValid = validateCPF(cpfString)
         if (isValid) {
-            console.log("CPF VALIDO AAAAAAAAAAAAAA")
             // Login
             try {
                 const params = {
                     UserPoolId: cognitoUserPoolId,
                     Username: cpfString,
                 };
-                
-                console.log("Params: ", params)
 
                 const data = await cognitoIdentityServiceProvider.adminGetUser(params).promise();
 
-                console.log("Data: ", data)
-
                 if (data) {
                     // CPF is valid, go to cognito authentication
-                    console.log("achou o usuario aaaaaaaaaaaaaaaaaaaaaaaa")
                     return {
                         statusCode: 200,
                         headers: {
@@ -63,8 +62,10 @@ exports.handler = async (event) => {
                             message: 'Redirecting to Cognito for authentication...',
                         }),
                     };
-                } else {
-                    console.log("não achou o usuario aaaaaaaaaaaaaaaaaaaaaaaa")
+                }
+            } catch (error) {
+                console.log("erro: ", error)
+                if (error.code === 'UserNotFoundException') {
                     return {
                         statusCode: 401,
                         body: JSON.stringify({
@@ -72,19 +73,17 @@ exports.handler = async (event) => {
                             error: 'CPF supplied is not in the database.',
                         }),
                     }
+                } else {
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            message: 'Failed to conect to cognito.',
+                            error: 'Failed to conect to cognito.   ' + error,
+                        }),
+                    };
                 }
-            } catch (error) {
-                console.log("erro: ", error)
-                return {
-                    statusCode: 500,
-                    body: JSON.stringify({
-                        message: 'Failed to conect to cognito.',
-                        error: 'Failed to conect to cognito.   ' + error,
-                    }),
-                };
             }
         } else {
-            console.log("cpf invalidoooooooooooo")
             return {
                 statusCode: 400,
                 body: JSON.stringify({
