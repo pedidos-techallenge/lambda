@@ -169,7 +169,7 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.application_entry.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/POST/pedidos/*"
+  # source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/POST/pedidos/application/cpf"
 }
 
 # Deploy API Gateway
