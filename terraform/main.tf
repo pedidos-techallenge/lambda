@@ -169,7 +169,16 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.application_entry.function_name
   principal     = "apigateway.amazonaws.com"
-  # source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/POST/pedidos/application/cpf"
+  source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/POST/pedidos/application/cpf"
+}
+
+# Lambda Permission for API Gateway
+resource "aws_lambda_permission_register" "api_gateway_permission_register" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.application_entry.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/POST/pedidos/application/register"
 }
 
 # Deploy API Gateway
@@ -177,6 +186,7 @@ resource "aws_api_gateway_deployment" "api_deployment" {
   depends_on   = [
     aws_api_gateway_integration.lambda_integration,
     aws_lambda_permission.api_gateway_permission,
+    aws_lambda_permission_register.api_gateway_permission_register,
     aws_api_gateway_integration.lambda_integration_cpf,
     aws_api_gateway_integration.lambda_integration_register
   ]
