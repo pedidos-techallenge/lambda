@@ -29,9 +29,72 @@ exports.handler = async (event) => {
 
     if (httpMethod === "POST" && event.path === "/pedidos/application/register") {
         const requestBody = JSON.parse(event.body);
-        const { username, password, email } = requestBody;
 
-        // REGISTRA AQUI
+        email = ""
+
+        const { username, email } = requestBody;
+        if (username != null) {
+
+            isCPFValid = validateCPF(username)
+            if (!isCPFValid) {
+                return {
+                    statusCode: 400,
+                    headers: {
+                        Location: cognitoUrl,
+                    },
+                    body: JSON.stringify({
+                        message: 'Invalid CPF',
+                    }),
+                };
+            }
+
+            const data = await cognitoIdentityServiceProvider.adminGetUser(params).promise();
+            if (data) {
+                return {
+                    statusCode: 400,
+                    headers: {
+                        Location: cognitoUrl,
+                    },
+                    body: JSON.stringify({
+                        message: 'User with this CPF already exists...',
+                    }),
+                };
+            } else {
+
+                const params = {
+                    UserPoolId: cognitoUserPoolId,
+                    Username: username,
+                    // TemporaryPassword: '123456',
+                    UserAttributes: [
+                        {
+                            Name: 'email',
+                            Value: email,
+                        },
+                    ],
+                };
+
+                try {
+                    const registerResponse = await cognitoIdentityServiceProvider.signUp(params).promise();
+                    return {
+                        statusCode: 200,
+                        headers: {
+                            Location: cognitoUrl,
+                        },
+                        body: JSON.stringify({
+                            message: 'Redirecting to Cognito for authentication...',
+                        }),
+                    }
+                } catch (error) {
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            message: 'Failed to conect to cognito.',
+                            error: 'Failed to conect to cognito.   ' + error,
+                        }),
+                    }   
+                }
+            }
+        }
     }
 
     // Try to authenticate
