@@ -42,7 +42,7 @@ jobs:
       run: npm install aws-sdk && npm install
 
     - name: Zip Lambda function
-      run: zip -r lambda.zip lambda/index.js lambda/package.json
+      run: zip -r lambda.zip lambda/
     
     - name: Verify if the zip file exists
       run: test -f lambda.zip && echo "Found file" || echo "Not found file"
