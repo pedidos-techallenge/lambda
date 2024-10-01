@@ -48,7 +48,7 @@ exports.handler = async (event) => {
 
             const validateParams = {
                 UserPoolId: cognitoUserPoolId,
-                Username: cpfString,
+                Username: cpf,
             };
 
             const data = await cognitoIdentityServiceProvider.adminGetUser(validateParams).promise();
