@@ -20,9 +20,12 @@ exports.handler = async (event) => {
     const requestBody = JSON.parse(event.body);
     const httpMethod = event.httpMethod;
     var cpf = null;
+    var cpfString
 
     if (requestBody != null && 'cpf' in requestBody) {
         cpf = requestBody.cpf;
+        cpfString = String(cpf)
+        
     }
 
     if (requestBody != null && 'email' in requestBody) {
@@ -113,8 +116,6 @@ exports.handler = async (event) => {
     // Try to authenticate
     else if (httpMethod === "POST" && event.path === "/pedidos/application/cpf") {
         if (cpf != null) {
-            
-            const cpfString = String(cpf)
 
             isValid = validateCPF(cpfString)
             if (isValid) {
