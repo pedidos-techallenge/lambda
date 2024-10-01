@@ -55,7 +55,7 @@ exports.handler = async (event) => {
                     // CPF is valid, go to cognito authentication
                     console.log("achou o usuario aaaaaaaaaaaaaaaaaaaaaaaa")
                     return {
-                        statusCode: 302,
+                        statusCode: 200,
                         headers: {
                             Location: cognitoUrl,
                         },
