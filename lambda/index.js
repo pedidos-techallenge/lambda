@@ -5,10 +5,15 @@ const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({
     region: 'us-east-1'
 });
 
-const clientId = process.env.COGNITO_CLIENT_ID;
-const cognitoDomain = process.env.COGNITO_DOMAIN;
-const redirectUri = process.env.COGNITO_REDIRECT_URI;
-const cognitoUserPoolId = process.env.COGNITO_USER_POOL_ID;
+// const clientId = process.env.COGNITO_CLIENT_ID;
+// const cognitoDomain = process.env.COGNITO_DOMAIN;
+// const redirectUri = process.env.COGNITO_REDIRECT_URI;
+// const cognitoUserPoolId = process.env.COGNITO_USER_POOL_ID;
+
+const clientId="2irn4ti87780cmv6v5fndebbn8"
+const cognitoDomain="https://pos-tech-challenge.auth.us-east-1.amazoncognito.com"
+const redirectUri="https://github.com/queirozingrid"
+const cognitoUserPoolId="us-east-1_aUa1CwVit"
 
 const cognitoUrl = `https://${cognitoDomain}.auth.us-east-1.amazoncognito.com/login?client_id=${clientId}&response_type=code&scope=openid&redirect_uri=${redirectUri}`;
 
