@@ -27,7 +27,7 @@ exports.handler = async (event) => {
         cpf = requestBody.cpf;
     }
 
-    if (httpMethod === "POST" && event.path === "/pedidos/register") {
+    if (httpMethod === "POST" && event.path === "/pedidos/application/register") {
         const requestBody = JSON.parse(event.body);
         const { username, password, email } = requestBody;
 
@@ -35,7 +35,7 @@ exports.handler = async (event) => {
     }
 
     // Try to authenticate
-    else if (httpMethod === "POST" && event.path === "/pedidos/cpf") {
+    else if (httpMethod === "POST" && event.path === "/pedidos/application/cpf") {
         if (cpf != null) {
             
             const cpfString = String(cpf)
