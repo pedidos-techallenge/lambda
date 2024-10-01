@@ -38,7 +38,8 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Setup AWS CLI
-      run: npm install aws-sdk
+      working-directory: lambda
+      run: npm install aws-sdk && npm install
 
     - name: Zip Lambda function
       run: zip -r lambda.zip lambda/index.js lambda/package.json
