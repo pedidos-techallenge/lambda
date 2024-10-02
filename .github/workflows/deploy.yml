@@ -26,11 +26,11 @@ jobs:
     
     - name: Terraform Plans
       working-directory: terraform
-      run: terraform plan -out=tfplan
+      run: terraform plan -out=tfplan -var "s3_bucket=${TF_STATE_BUCKET}"
     
     - name: Apply Terraform
       working-directory: terraform
-      run: terraform apply -input=false -auto-approve tfplan
+      run: terraform apply -input=false -auto-approve tfplan -var "s3_bucket=${TF_STATE_BUCKET}"
     
   aws_cli_:
     runs-on: ubuntu-latest
