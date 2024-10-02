@@ -111,7 +111,7 @@ exports.handler = async (event) => {
                         Location: cognitoUrl,
                     },
                     body: JSON.stringify({
-                        message: 'Redirecting to Cognito for authentication...',
+                        message: 'User registered successfully!',
                     }),
                 }
             } catch (error) {
@@ -130,7 +130,7 @@ exports.handler = async (event) => {
                     Location: cognitoUrl,
                 },
                 body: JSON.stringify({
-                    message: 'Missing CPF',
+                    message: 'Failed to register: Missing CPF',
                 }),
             };
         }
@@ -138,7 +138,6 @@ exports.handler = async (event) => {
 
     // Try to authenticate
     else if (httpMethod === "POST" && event.path === "/pedidos/application/cpf") {
-        console.log("aaaaaaaaaaaaaa: ")
         if (cpf != null) {
 
             isValid = validateCPF(cpfString)
@@ -160,7 +159,7 @@ exports.handler = async (event) => {
                                 Location: cognitoUrl,
                             },
                             body: JSON.stringify({
-                                message: 'Redirecting to Cognito for authentication...',
+                                message: 'Login Successfully! Redirecting to Cognito for authentication...',
                             }),
                         };
                     }
@@ -171,7 +170,7 @@ exports.handler = async (event) => {
                             statusCode: 401,
                             body: JSON.stringify({
                                 message: 'CPF supplied is not in the database.',
-                                error: 'CPF supplied is not in the database.',
+                                error: 'Failed to Login: CPF supplied is not in the database.',
                             }),
                         }
                     } else {
@@ -179,7 +178,7 @@ exports.handler = async (event) => {
                             statusCode: 500,
                             body: JSON.stringify({
                                 message: 'Failed to conect to cognito.',
-                                error: 'Failed to conect to cognito.   ' + error,
+                                error: 'Failed to login to cognito.   ' + error,
                             }),
                         };
                     }
@@ -197,12 +196,9 @@ exports.handler = async (event) => {
         } else {
             // Client not identified, do not login, go to application direclty
             return {
-                statusCode: 302,
-                headers: {
-                    Location: 'https://pudim.com.br',
-                },
+                statusCode: 200,
                 body: JSON.stringify({
-                    message: 'Redirecting to application...',
+                    message: 'Login Successfully! Redirecting to application...',
                 }),
             };
         }
