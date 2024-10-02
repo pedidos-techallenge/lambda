@@ -6,12 +6,20 @@ terraform {
   backend "s3" {}
 }
 
+data "aws_iam_role" "lab-role" {
+  name = "LabRole"
+}
+
+variable s3_bucket {
+  type = string
+}
+
 resource "aws_lambda_function" "application_entry" {
   function_name = "application_entry"
   handler       = "lambda/index.handler"
   runtime       = "nodejs18.x"
-  role          = "arn:aws:iam::195169078299:role/LabRole"
-  s3_bucket     = "bucket-tfstates-postech-fiap-6soat"
+  role          = data.aws_iam_role.lab-role.arn
+  s3_bucket     = var.s3_bucket
   s3_key        = "lambda.zip"
 
   environment {
@@ -113,7 +121,7 @@ resource "aws_api_gateway_integration" "lambda_integration_cpf" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.application_entry.invoke_arn
-  credentials             = "arn:aws:iam::195169078299:role/LabRole"
+  credentials             = data.aws_iam_role.lab-role.arn
 
   request_templates = {
     "application/json" = <<EOF
@@ -148,7 +156,7 @@ resource "aws_api_gateway_integration" "lambda_integration_register" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.application_entry.invoke_arn
-  credentials             = "arn:aws:iam::195169078299:role/LabRole"
+  credentials             = data.aws_iam_role.lab-role.arn
 
   request_templates = {
     "application/json" = <<EOF
@@ -169,7 +177,7 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.application_entry.invoke_arn
-  credentials             = "arn:aws:iam::195169078299:role/LabRole"
+  credentials             = data.aws_iam_role.lab-role.arn
 }
 
 # Lambda Permission for API Gateway
