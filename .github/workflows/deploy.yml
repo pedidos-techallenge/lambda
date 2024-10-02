@@ -3,7 +3,7 @@ name: Deploy Lambda
 on:
   push:
     branches:
-      - main
+      - '*'
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -37,12 +37,15 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Zip Lambda function
+    - name: Setup AWS CLI
       working-directory: lambda
-      run: zip -r lambda.zip *
+      run: npm install aws-sdk && npm install
+
+    - name: Zip Lambda function
+      run: zip -r lambda.zip lambda/
     
     - name: Verify if the zip file exists
-      run: test -f lambda.zip && echo "Arquivo encontrado" || echo "Arquivo não encontrado"
+      run: test -f lambda.zip && echo "Found file" || echo "Not found file"
     
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -52,5 +55,37 @@ jobs:
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
         aws-region: us-east-1
     
-    - name: Upload to S3
-      run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip
+    - name: Upload to S3 (replace existing lambda.zip)
+      run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip --acl bucket-owner-full-control
+
+    - name: Update Lambda function code
+      run: |
+        aws lambda update-function-code \
+        --function-name application_entry \
+        --s3-bucket bucket-tfstates-postech-fiap-6soat \
+        --s3-key lambda.zip \
+    
+    - name: Wait for Lambda to be ready
+      run: |
+        while true; do
+          STATUS=$(aws lambda get-function --function-name application_entry --query 'Configuration.LastUpdateStatus' --output text)
+          echo "Current status: $STATUS"
+          if [ "$STATUS" != "InProgress" ]; then
+            break
+          fi
+          echo "Waiting for the function to be ready..."
+          sleep 10
+        done
+
+    - name: Update Lambda Environment Configuration
+      run: |
+        VARIABLES=$(jq -n \
+          --arg COGNITO_CLIENT_ID "${{ secrets.COGNITO_CLIENT_ID }}" \
+          --arg COGNITO_DOMAIN "${{ secrets.COGNITO_DOMAIN }}" \
+          --arg COGNITO_REDIRECT_URI "${{ secrets.COGNITO_REDIRECT_URI }}" \
+          --arg COGNITO_USER_POOL_ID "${{ secrets.COGNITO_USER_POOL_ID }}" \
+          '{Variables: {COGNITO_CLIENT_ID: $COGNITO_CLIENT_ID, COGNITO_DOMAIN: $COGNITO_DOMAIN, COGNITO_REDIRECT_URI: $COGNITO_REDIRECT_URI, COGNITO_USER_POOL_ID: $COGNITO_USER_POOL_ID}}')
+        aws lambda update-function-configuration \
+        --function-name application_entry \
+        --environment "$VARIABLES"
+          
