@@ -58,26 +58,33 @@ resource "aws_security_group" "lambda_sg" {
 }
 
 # API Gateway
-data "aws_api_gateway_rest_api" "api" {
+resource "aws_api_gateway_rest_api" "api" {
   name = "ApplicationEntry"
+}
+
+# API Gateway Resource
+resource "aws_api_gateway_resource" "application_resource" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+  path_part   = "pedidos"
 }
 
 # Create child resources under the existing primary resource
 data "aws_api_gateway_resource" "pedidos_resource" {
-  rest_api_id = data.aws_api_gateway_rest_api.api.id
+  rest_api_id = aws_api_gateway_rest_api.api.id
   path        = "/pedidos"
 }
 
 # Nested Resource /pedidos/application
 resource "aws_api_gateway_resource" "application_resource" {
-  rest_api_id = data.aws_api_gateway_rest_api.api.id
-  parent_id   = data.aws_api_gateway_resource.pedidos_resource.id # link it under /pedidos
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_resource.pedidos_resource.id # link it under /pedidos
   path_part   = "application"
 }
 
 # Method GET on /pedidos/application
 resource "aws_api_gateway_method" "get_method" {
-  rest_api_id   = data.aws_api_gateway_rest_api.api.id
+  rest_api_id   = aws_api_gateway_rest_api.api.id
   resource_id   = aws_api_gateway_resource.application_resource.id
   http_method   = "GET"
   authorization = "NONE"
@@ -85,14 +92,14 @@ resource "aws_api_gateway_method" "get_method" {
 
 # Nested Resource /pedidos/application/cpf
 resource "aws_api_gateway_resource" "cpf_resource" {
-  rest_api_id = data.aws_api_gateway_rest_api.api.id
+  rest_api_id = aws_api_gateway_rest_api.api.id
   parent_id   = aws_api_gateway_resource.application_resource.id # link it under /pedidos/application
   path_part   = "cpf"
 }
 
 # Method POST on /pedidos/application/cpf
 resource "aws_api_gateway_method" "post_method_cpf" {
-  rest_api_id   = data.aws_api_gateway_rest_api.api.id
+  rest_api_id   = aws_api_gateway_rest_api.api.id
   resource_id   = aws_api_gateway_resource.cpf_resource.id
   http_method   = "POST"
   authorization = "NONE"
@@ -100,7 +107,7 @@ resource "aws_api_gateway_method" "post_method_cpf" {
 
 # API Gateway Integration with Lambda for CPF
 resource "aws_api_gateway_integration" "lambda_integration_cpf" {
-  rest_api_id             = data.aws_api_gateway_rest_api.api.id
+  rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.cpf_resource.id
   http_method             = aws_api_gateway_method.post_method_cpf.http_method
   integration_http_method = "POST"
@@ -120,14 +127,14 @@ resource "aws_api_gateway_integration" "lambda_integration_cpf" {
 
 # Nested Resource /pedidos/application/register
 resource "aws_api_gateway_resource" "register_resource" {
-  rest_api_id = data.aws_api_gateway_rest_api.api.id
+  rest_api_id = aws_api_gateway_rest_api.api.id
   parent_id   = aws_api_gateway_resource.application_resource.id # link it under /pedidos/application
   path_part   = "register"
 }
 
 # Method POST on /pedidos/application/register
 resource "aws_api_gateway_method" "post_method_register" {
-  rest_api_id   = data.aws_api_gateway_rest_api.api.id
+  rest_api_id   = aws_api_gateway_rest_api.api.id
   resource_id   = aws_api_gateway_resource.register_resource.id
   http_method   = "POST"
   authorization = "NONE"
@@ -135,7 +142,7 @@ resource "aws_api_gateway_method" "post_method_register" {
 
 # API Gateway Integration with Lambda for Register User
 resource "aws_api_gateway_integration" "lambda_integration_register" {
-  rest_api_id             = data.aws_api_gateway_rest_api.api.id
+  rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.register_resource.id
   http_method             = aws_api_gateway_method.post_method_register.http_method
   integration_http_method = "POST"
@@ -156,7 +163,7 @@ resource "aws_api_gateway_integration" "lambda_integration_register" {
 
 # API Gateway Integration with Lambda (/pedidos/application)
 resource "aws_api_gateway_integration" "lambda_integration" {
-  rest_api_id             = data.aws_api_gateway_rest_api.api.id
+  rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.application_resource.id
   http_method             = aws_api_gateway_method.get_method.http_method
   integration_http_method = "POST"
@@ -171,7 +178,7 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.application_entry.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/POST/pedidos/application/cpf"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/POST/pedidos/application/cpf"
 }
 
 # Lambda Permission for API Gateway
@@ -180,7 +187,7 @@ resource "aws_lambda_permission" "api_gateway_permission_register" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.application_entry.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${data.aws_api_gateway_rest_api.api.execution_arn}/*/POST/pedidos/application/register"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/POST/pedidos/application/register"
 }
 
 # Deploy API Gateway
@@ -193,7 +200,7 @@ resource "aws_api_gateway_deployment" "api_deployment" {
     aws_lambda_permission.api_gateway_permission_register,
     aws_api_gateway_integration.lambda_integration_register
   ]
-  rest_api_id  = data.aws_api_gateway_rest_api.api.id
+  rest_api_id  = aws_api_gateway_rest_api.api.id
   stage_name   = "prod"
 
   triggers = {
