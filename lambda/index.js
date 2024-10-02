@@ -47,9 +47,9 @@ exports.handler = async (event) => {
             if (!isCPFValid) {
                 return {
                     statusCode: 400,
-                    headers: {
-                        Location: cognitoUrl,
-                    },
+                    // headers: {
+                    //     Location: cognitoUrl,
+                    // },
                     body: JSON.stringify({
                         message: 'Invalid CPF',
                     }),
@@ -66,9 +66,9 @@ exports.handler = async (event) => {
                 if (registerData) {
                     return {
                         statusCode: 400,
-                        headers: {
-                            Location: cognitoUrl,
-                        },
+                        // headers: {
+                        //     Location: cognitoUrl,
+                        // },
                         body: JSON.stringify({
                             message: 'User with this CPF already exists...',
                         }),
@@ -107,9 +107,9 @@ exports.handler = async (event) => {
                 const registerResponse = await cognitoIdentityServiceProvider.signUp(registerParams).promise();
                 return {
                     statusCode: 200,
-                    headers: {
-                        Location: cognitoUrl,
-                    },
+                    // headers: {
+                    //     Location: cognitoUrl,
+                    // },
                     body: JSON.stringify({
                         message: 'User registered successfully!',
                     }),
@@ -126,9 +126,9 @@ exports.handler = async (event) => {
         } else {
             return {
                 statusCode: 400,
-                headers: {
-                    Location: cognitoUrl,
-                },
+                // headers: {
+                //     Location: cognitoUrl,
+                // },
                 body: JSON.stringify({
                     message: 'Failed to register: Missing CPF',
                 }),
@@ -155,9 +155,9 @@ exports.handler = async (event) => {
                         // CPF is valid, go to cognito authentication
                         return {
                             statusCode: 200,
-                            headers: {
-                                Location: cognitoUrl,
-                            },
+                            // headers: {
+                            //     Location: cognitoUrl,
+                            // },
                             body: JSON.stringify({
                                 message: 'Login Successfully! Redirecting to Cognito for authentication...',
                             }),
