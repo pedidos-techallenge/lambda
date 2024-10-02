@@ -143,6 +143,7 @@ exports.handler = async (event) => {
 
     // Try to authenticate
     else if (httpMethod === "POST" && event.path === "/pedidos/application/cpf") {
+        console.log("aaaaaaaaaaaaaa: ")
         if (cpf != null) {
 
             isValid = validateCPF(cpfString)
