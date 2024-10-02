@@ -9,6 +9,8 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+  TF_STATE_BUCKET: ${{ secrets.TF_STATE_BUCKET }}
+  AWS_DEFAULT_REGION: us-east-1
 
 jobs:
   deploy:
@@ -20,15 +22,15 @@ jobs:
 
     - name: Setup AWS CLI
       working-directory: terraform
-      run: terraform init -backend-config="bucket=bucket-tfstates-postech-fiap-6soat" -backend-config="key=lambda.tfstate" -backend-config="region=us-east-1"
+      run: terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="key=lambda.tfstate" -backend-config="region=us-east-1"
     
     - name: Terraform Plans
       working-directory: terraform
-      run: terraform plan -out=tfplan
+      run: terraform plan -out=tfplan -var "s3_bucket=${TF_STATE_BUCKET}"
     
     - name: Apply Terraform
       working-directory: terraform
-      run: terraform apply -input=false -auto-approve tfplan
+      run: terraform apply -auto-approve -var "s3_bucket=${TF_STATE_BUCKET}"
     
   aws_cli_:
     runs-on: ubuntu-latest
@@ -56,13 +58,13 @@ jobs:
         aws-region: us-east-1
     
     - name: Upload to S3 (replace existing lambda.zip)
-      run: aws s3 cp lambda.zip s3://bucket-tfstates-postech-fiap-6soat/lambda.zip --acl bucket-owner-full-control
+      run: aws s3 cp lambda.zip s3://${TF_STATE_BUCKET}/lambda.zip --acl bucket-owner-full-control
 
     - name: Update Lambda function code
       run: |
         aws lambda update-function-code \
         --function-name application_entry \
-        --s3-bucket bucket-tfstates-postech-fiap-6soat \
+        --s3-bucket ${TF_STATE_BUCKET} \
         --s3-key lambda.zip \
     
     - name: Wait for Lambda to be ready
