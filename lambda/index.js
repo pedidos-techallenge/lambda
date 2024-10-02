@@ -199,17 +199,17 @@ exports.handler = async (event) => {
                     }),
                 }
             }
+        } else {
+            // Client not identified, do not login, go to application direclty
+            return {
+                statusCode: 302,
+                headers: {
+                    Location: 'https://pudim.com.br',
+                },
+                body: JSON.stringify({
+                    message: 'Redirecting to application...',
+                }),
+            };
         }
-    } else {
-        // Client not identified, do not login, go to application direclty
-        return {
-            statusCode: 302,
-            headers: {
-                Location: 'https://pudim.com.br',
-            },
-            body: JSON.stringify({
-                message: 'Redirecting to application...',
-            }),
-        };
     }
 };
