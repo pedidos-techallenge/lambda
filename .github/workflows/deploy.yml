@@ -30,7 +30,7 @@ jobs:
     
     - name: Apply Terraform
       working-directory: terraform
-      run: terraform apply -input=false -auto-approve tfplan -var "s3_bucket=${TF_STATE_BUCKET}"
+      run: terraform apply -auto-approve -var "s3_bucket=${TF_STATE_BUCKET}"
     
   aws_cli_:
     runs-on: ubuntu-latest
