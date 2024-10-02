@@ -67,8 +67,8 @@ exports.handler = async (event) => {
             };
 
             try {
-                const data = await cognitoIdentityServiceProvider.adminGetUser(validateParams).promise();
-                if (data) {
+                const registerData = await cognitoIdentityServiceProvider.adminGetUser(validateParams).promise();
+                if (registerData) {
                     return {
                         statusCode: 400,
                         headers: {
